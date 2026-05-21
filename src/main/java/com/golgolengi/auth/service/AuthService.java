@@ -2,12 +2,12 @@ package com.golgolengi.auth.service;
 
 import com.golgolengi.auth.domain.Consent;
 import com.golgolengi.auth.domain.LogoutToken;
-import com.golgolengi.auth.dto.AppleClaims;
-import com.golgolengi.auth.dto.request.AppleCallbackRequest;
+import com.golgolengi.auth.dto.request.KakaoLoginRequest;
 import com.golgolengi.auth.dto.request.TermsAgreeRequest;
 import com.golgolengi.auth.dto.response.TokenResponse;
 import com.golgolengi.auth.repository.ConsentRepository;
 import com.golgolengi.auth.repository.LogoutTokenRepository;
+import com.golgolengi.auth.service.KakaoAuthClient.KakaoUserInfo;
 import com.golgolengi.global.exception.CustomException;
 import com.golgolengi.global.exception.ErrorCode;
 import com.golgolengi.global.jwt.JwtProvider;
@@ -15,7 +15,6 @@ import com.golgolengi.member.domain.Member;
 import com.golgolengi.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,32 +29,18 @@ public class AuthService {
     private final ConsentRepository consentRepository;
     private final LogoutTokenRepository logoutTokenRepository;
     private final JwtProvider jwtProvider;
-    private final AppleIdTokenValidator appleIdTokenValidator;
+    private final KakaoAuthClient kakaoAuthClient;
 
-    public TokenResponse loginWithGoogle(OAuth2User oAuth2User) {
-        return findOrCreateAndIssue(
-                "google",
-                oAuth2User.getAttribute("sub"),
-                oAuth2User.getAttribute("email"),
-                oAuth2User.getAttribute("name"),
-                oAuth2User.getAttribute("picture")
-        );
+    public TokenResponse loginWithKakao(KakaoLoginRequest request) {
+        KakaoUserInfo userInfo = kakaoAuthClient.getUserInfo(request.accessToken());
+        return findOrCreateAndIssue("kakao", userInfo.id(), userInfo.email(),
+                userInfo.name(), userInfo.profileImageUrl());
     }
 
-    public TokenResponse loginWithApple(AppleCallbackRequest request) {
-        AppleClaims claims = appleIdTokenValidator.validate(request.idToken());
-        String email = claims.email() != null ? claims.email()
-                : (request.user() != null ? request.user().email() : null);
-        String name = request.user() != null ? request.user().name() : null;
-        return findOrCreateAndIssue("apple", claims.sub(), email, name, null);
-    }
-
-    public void agreeTerms(TermsAgreeRequest request) {
-        Member member = memberRepository.findBySocialProviderAndSocialId(
-                request.getSocialProvider(), request.getSocialId()
-        ).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        String memberId = member.getId().toHexString();
+    public void agreeTerms(String memberId, TermsAgreeRequest request) {
+        if (!memberRepository.existsById(new ObjectId(memberId))) {
+            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
+        }
         if (!consentRepository.existsByMemberId(memberId)) {
             consentRepository.save(Consent.builder()
                     .memberId(memberId)
@@ -81,8 +66,6 @@ public class AuthService {
         blacklist(accessToken);
         blacklist(refreshToken);
     }
-
-    // ── 공통 내부 메서드 ──────────────────────────────────────────────────────
 
     private TokenResponse findOrCreateAndIssue(
             String provider, String socialId, String email, String name, String profileImageUrl) {

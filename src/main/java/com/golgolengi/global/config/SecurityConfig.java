@@ -1,7 +1,6 @@
 package com.golgolengi.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.golgolengi.auth.service.OAuth2LoginSuccessHandler;
 import com.golgolengi.global.jwt.JwtAuthFilter;
 import com.golgolengi.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final ObjectMapper objectMapper;
 
     @Bean
@@ -33,13 +31,9 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(f -> f.disable())
                 .httpBasic(b -> b.disable())
-                .oauth2Login(oauth -> oauth
-                        .authorizationEndpoint(e -> e.baseUri("/oauth/google/login"))
-                        .redirectionEndpoint(e -> e.baseUri("/oauth/google/callback"))
-                        .successHandler(oAuth2LoginSuccessHandler)
-                )
+                .oauth2Login(oauth -> oauth.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth/**", "/auth/refresh", "/actuator/health").permitAll()
+                        .requestMatchers("/oauth/kakao/callback", "/auth/refresh", "/actuator/health").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

@@ -8,6 +8,7 @@ import com.golgolengi.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,8 +18,10 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/auth/terms")
-    public ResponseEntity<ApiResponse<Void>> agreeTerms(@RequestBody @Valid TermsAgreeRequest request) {
-        authService.agreeTerms(request);
+    public ResponseEntity<ApiResponse<Void>> agreeTerms(
+            @AuthenticationPrincipal String memberId,
+            @RequestBody @Valid TermsAgreeRequest request) {
+        authService.agreeTerms(memberId, request);
         return ResponseEntity.ok(ApiResponse.ok("약관 동의가 완료되었습니다."));
     }
 
