@@ -56,7 +56,6 @@ public class RiskController {
     public ResponseEntity<ApiResponse<FamilyRiskSummaryResponse>> getFamilyRiskSummary(
             @AuthenticationPrincipal String memberId,
             @PathVariable String familyId) {
-        // 요청자가 해당 가족 구성원인지 검증
         familyMemberRepository.findByFamilyIdAndMemberId(familyId, memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FAMILY_MEMBER));
         return ResponseEntity.ok(ApiResponse.ok(riskQueryService.getFamilyRiskSummary(familyId)));
@@ -69,5 +68,14 @@ public class RiskController {
         familyMemberRepository.findByFamilyIdAndMemberId(familyId, memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FAMILY_MEMBER));
         return ResponseEntity.ok(ApiResponse.ok(riskQueryService.getFamilyRiskSummary(familyId)));
+    }
+
+    @GetMapping("/families/{familyId}/ranking")
+    public ResponseEntity<ApiResponse<List<RankingResponse>>> getFamilyRanking(
+            @AuthenticationPrincipal String memberId,
+            @PathVariable String familyId) {
+        familyMemberRepository.findByFamilyIdAndMemberId(familyId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FAMILY_MEMBER));
+        return ResponseEntity.ok(ApiResponse.ok(riskQueryService.getFamilyRanking(familyId)));
     }
 }

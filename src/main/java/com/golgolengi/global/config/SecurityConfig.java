@@ -31,7 +31,6 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(f -> f.disable())
                 .httpBasic(b -> b.disable())
-                .oauth2Login(oauth -> oauth.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/oauth/kakao/callback", "/auth/refresh", "/actuator/health").permitAll()
                         .anyRequest().authenticated()

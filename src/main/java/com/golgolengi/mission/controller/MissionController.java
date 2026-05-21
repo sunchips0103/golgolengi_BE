@@ -2,7 +2,9 @@ package com.golgolengi.mission.controller;
 
 import com.golgolengi.global.response.ApiResponse;
 import com.golgolengi.mission.dto.request.CheckInRequest;
+import com.golgolengi.mission.dto.response.BadgeResponse;
 import com.golgolengi.mission.dto.response.MissionResponse;
+import com.golgolengi.mission.service.BadgeService;
 import com.golgolengi.mission.service.MissionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.List;
 public class MissionController {
 
     private final MissionService missionService;
+    private final BadgeService badgeService;
 
     @GetMapping("/missions/recommended")
     public ResponseEntity<ApiResponse<List<MissionResponse>>> getRecommended(
@@ -35,5 +38,11 @@ public class MissionController {
             @AuthenticationPrincipal String memberId,
             @Valid @RequestBody CheckInRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(missionService.checkIn(memberId, request)));
+    }
+
+    @GetMapping("/badges")
+    public ResponseEntity<ApiResponse<List<BadgeResponse>>> getBadges(
+            @AuthenticationPrincipal String memberId) {
+        return ResponseEntity.ok(ApiResponse.ok(badgeService.getBadges(memberId)));
     }
 }

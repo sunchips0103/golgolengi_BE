@@ -32,9 +32,15 @@ public class Member {
     @Builder.Default
     private boolean onboardingCompleted = false;
 
+    private LocalDateTime deletedAt;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
 }

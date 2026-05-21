@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -43,7 +45,13 @@ public class MemberService {
         return MemberResponse.of(member, familyId);
     }
 
-    private Member findMember(String memberId) {
+    public void withdraw(String memberId) {
+        Member member = findMember(memberId);
+        member.setDeletedAt(LocalDateTime.now());
+        memberRepository.save(member);
+    }
+
+    public Member findMember(String memberId) {
         return memberRepository.findById(new ObjectId(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }

@@ -6,11 +6,6 @@ import java.util.List;
 
 @Getter
 public class FamilyHistoryRequest {
-    private List<FamilyHistoryItemRequest> items;
-
-    @Getter
-    public static class FamilyHistoryItemRequest {
-        private String relation;
-        private String condition;
-    }
+    private String relation;           // FATHER, MOTHER, SIBLING, GRANDPARENT
+    private List<String> conditions;   // HYPERTENSION, DIABETES, HEART_DISEASE, CANCER, STROKE
 }

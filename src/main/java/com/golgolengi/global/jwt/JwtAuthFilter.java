@@ -3,6 +3,7 @@ package com.golgolengi.global.jwt;
 import com.golgolengi.auth.repository.LogoutTokenRepository;
 import com.golgolengi.global.exception.CustomException;
 import com.golgolengi.global.exception.ErrorCode;
+import com.golgolengi.member.service.MemberService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final LogoutTokenRepository logoutTokenRepository;
+    private final MemberService memberService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -38,6 +40,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
 
                 String memberId = jwtProvider.extractMemberId(token);
+
+                if (memberService.findMember(memberId).isDeleted()) {
+                    throw new CustomException(ErrorCode.MEMBER_WITHDRAWN);
+                }
+
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(memberId, null, List.of());
                 SecurityContextHolder.getContext().setAuthentication(auth);

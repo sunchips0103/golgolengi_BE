@@ -1,0 +1,185 @@
+### 골골방지 API 테스트
+### IntelliJ에서 각 요청 왼쪽 ▶ 버튼으로 실행
+
+@baseUrl = http://localhost:8080
+@accessToken = 여기에_로그인후_받은_access_token_붙여넣기
+
+# ──────────────────────────────────────────
+# 0. 서버 헬스체크 (인증 불필요)
+# ──────────────────────────────────────────
+
+### 헬스체크
+GET {{baseUrl}}/actuator/health
+
+
+# ──────────────────────────────────────────
+# 1. 인증 (Kakao SDK 로그인)
+# ──────────────────────────────────────────
+
+### Kakao 로그인 (앱에서 받은 kakao access token 사용)
+POST {{baseUrl}}/oauth/kakao/callback
+Content-Type: application/json
+
+{
+  "accessToken": "여기에_카카오_액세스_토큰"
+}
+
+### 토큰 재발급
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "여기에_refresh_token"
+}
+
+### 약관 동의 (로그인 후 accessToken 필요)
+POST {{baseUrl}}/auth/terms
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "marketingAgreed": false
+}
+
+### 로그아웃
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "refreshToken": "여기에_refresh_token"
+}
+
+
+# ──────────────────────────────────────────
+# 2. 회원
+# ──────────────────────────────────────────
+
+### 내 정보 조회
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### 온보딩 완료
+PATCH {{baseUrl}}/member/onboarding
+Authorization: Bearer {{accessToken}}
+
+### 회원 정보 수정
+PATCH {{baseUrl}}/members/여기에_memberId
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "홍길동",
+  "profileImageUrl": "https://example.com/image.jpg"
+}
+
+
+# ──────────────────────────────────────────
+# 3. 가족
+# ──────────────────────────────────────────
+
+### 가족 그룹 생성
+POST {{baseUrl}}/families
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "우리 가족"
+}
+
+### 초대 코드로 가족 합류
+POST {{baseUrl}}/families/join
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "inviteCode": "여기에_초대코드"
+}
+
+### 가족 개요 조회
+GET {{baseUrl}}/families/여기에_familyId/overview
+Authorization: Bearer {{accessToken}}
+
+### 가족 구성원 목록
+GET {{baseUrl}}/families/여기에_familyId/members
+Authorization: Bearer {{accessToken}}
+
+### 초대 코드 조회
+GET {{baseUrl}}/families/여기에_familyId/invite-code
+Authorization: Bearer {{accessToken}}
+
+
+# ──────────────────────────────────────────
+# 4. 건강 프로필
+# ──────────────────────────────────────────
+
+### 건강 프로필 생성
+POST {{baseUrl}}/health-profiles
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "height": 175.0,
+  "weight": 70.0,
+  "bloodType": "A",
+  "conditions": []
+}
+
+### 건강 프로필 조회
+GET {{baseUrl}}/health-profiles/여기에_profileId
+Authorization: Bearer {{accessToken}}
+
+### 생활습관 수정
+PATCH {{baseUrl}}/health-profiles/여기에_profileId/lifestyle
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "smokingStatus": "NEVER",
+  "drinkingFrequency": "RARELY",
+  "exerciseFrequency": "SOMETIMES",
+  "sleepHours": 7
+}
+
+
+# ──────────────────────────────────────────
+# 5. 미션
+# ──────────────────────────────────────────
+
+### 추천 미션 조회
+GET {{baseUrl}}/missions/recommended
+Authorization: Bearer {{accessToken}}
+
+### 전체 미션 조회
+GET {{baseUrl}}/missions
+Authorization: Bearer {{accessToken}}
+
+### 미션 체크인
+POST {{baseUrl}}/mission-logs
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "missionId": "여기에_missionId"
+}
+
+
+# ──────────────────────────────────────────
+# 6. 리스크 점수
+# ──────────────────────────────────────────
+
+### 리스크 점수 계산
+POST {{baseUrl}}/risk-scores/calculate
+Authorization: Bearer {{accessToken}}
+
+### 최신 리스크 점수 조회
+GET {{baseUrl}}/risk-scores
+Authorization: Bearer {{accessToken}}
+
+### 리스크 점수 이력
+GET {{baseUrl}}/risk-scores/history
+Authorization: Bearer {{accessToken}}
+
+### 항목별 상세
+GET {{baseUrl}}/risk-scores/breakdown
+Authorization: Bearer {{accessToken}}

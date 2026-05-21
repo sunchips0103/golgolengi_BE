@@ -43,8 +43,8 @@ public class HealthService {
 
     public HealthProfileResponse addFamilyHistory(String profileId, FamilyHistoryRequest request) {
         HealthProfile profile = findById(profileId);
-        request.getItems().forEach(item ->
-                profile.getFamilyHistory().add(new HealthProfile.FamilyHistoryItem(item.getRelation(), item.getCondition()))
+        request.getConditions().forEach(condition ->
+                profile.getFamilyHistory().add(new HealthProfile.FamilyHistoryItem(request.getRelation(), condition))
         );
         healthProfileRepository.save(profile);
         return HealthProfileResponse.from(profile);

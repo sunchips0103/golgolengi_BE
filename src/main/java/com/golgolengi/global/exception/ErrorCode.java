@@ -16,6 +16,7 @@ public enum ErrorCode {
 
     // 회원
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
+    MEMBER_WITHDRAWN(HttpStatus.UNAUTHORIZED, "탈퇴한 회원입니다."),
 
     // 가족
     FAMILY_NOT_FOUND(HttpStatus.NOT_FOUND, "가족 그룹을 찾을 수 없습니다."),

@@ -23,6 +23,10 @@ public class MemberRiskSummaryResponse {
                 .build();
     }
 
+    public static String calcRiskLevel(double score) {
+        return toLevel(score);
+    }
+
     private static String toLevel(double score) {
         if (score >= 70) return "HIGH";
         if (score >= 40) return "MEDIUM";

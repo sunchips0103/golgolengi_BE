@@ -1,13 +1,14 @@
 package com.golgolengi.mission.service;
 
 import com.golgolengi.mission.domain.Badge;
+import com.golgolengi.mission.dto.response.BadgeResponse;
 import com.golgolengi.mission.repository.BadgeRepository;
 import com.golgolengi.mission.repository.MissionLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,7 +18,13 @@ public class BadgeService {
     private final BadgeRepository badgeRepository;
     private final MissionLogRepository missionLogRepository;
 
-    // MissionService.checkIn() 완료 후 내부 호출 전용
+    public List<BadgeResponse> getBadges(String memberId) {
+        return badgeRepository.findByMemberId(memberId)
+                .stream()
+                .map(BadgeResponse::from)
+                .toList();
+    }
+
     public void checkAndAward(String memberId) {
         awardIfAbsent(memberId, "FIRST_CHECKIN", () ->
                 missionLogRepository.countByMemberId(memberId) >= 1);

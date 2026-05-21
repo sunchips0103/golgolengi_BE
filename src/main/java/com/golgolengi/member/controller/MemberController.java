@@ -34,4 +34,11 @@ public class MemberController {
             @RequestBody UpdateMemberRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(memberService.updateMember(memberId, request)));
     }
+
+    @PatchMapping("/users/me/status")
+    public ResponseEntity<ApiResponse<Void>> withdraw(
+            @AuthenticationPrincipal String memberId) {
+        memberService.withdraw(memberId);
+        return ResponseEntity.ok(ApiResponse.ok("탈퇴 처리가 완료되었습니다."));
+    }
 }
