@@ -60,9 +60,10 @@ dependencies {
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring31x:4.13.1'
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring3x:4.20.0'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
+

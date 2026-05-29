@@ -71,18 +71,28 @@ public class AuthService {
             String provider, String socialId, String email, String name, String profileImageUrl) {
         Optional<Member> existing = memberRepository.findBySocialProviderAndSocialId(provider, socialId);
         boolean isNew = existing.isEmpty();
-        Member member = existing.orElseGet(() -> memberRepository.save(Member.builder()
-                .socialProvider(provider)
-                .socialId(socialId)
-                .email(email)
-                .name(name)
-                .profileImageUrl(profileImageUrl)
-                .build()));
+        Member member;
+        if (isNew) {
+            member = memberRepository.save(Member.builder()
+                    .socialProvider(provider)
+                    .socialId(socialId)
+                    .email(email)
+                    .name(name)
+                    .profileImageUrl(profileImageUrl)
+                    .build());
+        } else {
+            member = existing.get();
+            if (member.isDeleted()) {
+                member.setDeletedAt(null);
+                memberRepository.save(member);
+            }
+        }
         return buildTokenResponse(member.getId().toHexString(), isNew, member.isOnboardingCompleted());
     }
 
     private TokenResponse buildTokenResponse(String memberId, boolean isNewMember, boolean onboardingCompleted) {
         return TokenResponse.builder()
+                .memberId(memberId)
                 .accessToken(jwtProvider.generateAccessToken(memberId))
                 .refreshToken(jwtProvider.generateRefreshToken(memberId))
                 .isNewMember(isNewMember)
