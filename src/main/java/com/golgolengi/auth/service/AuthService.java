@@ -37,6 +37,13 @@ public class AuthService {
                 userInfo.name(), userInfo.profileImageUrl());
     }
 
+    public TokenResponse loginWithKakaoCode(String code) {
+        String accessToken = kakaoAuthClient.getAccessToken(code);
+        KakaoUserInfo userInfo = kakaoAuthClient.getUserInfo(accessToken);
+        return findOrCreateAndIssue("kakao", userInfo.id(), userInfo.email(),
+                userInfo.name(), userInfo.profileImageUrl());
+    }
+
     public void agreeTerms(String memberId, TermsAgreeRequest request) {
         if (!memberRepository.existsById(new ObjectId(memberId))) {
             throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
